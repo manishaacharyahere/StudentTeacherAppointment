@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="student.css">
+    <title>Student Module</title>
+</head>
+<body>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="admin.html">Admin</a>
+        <a href="teacher.html">Teacher</a>
+        <a href="student.html">Student</a>
+    </nav>
+    <div class="container">
+        <h1>Student Module</h1>
+
+        <form id="registerForm">
+            <label for="fullName">Full Name:</label>
+            <input type="text" id="fullName" placeholder="Enter Full Name" required>
+
+            <label for="username">Username:</label>
+            <input type="text" id="username" placeholder="Enter Username" required>
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" placeholder="Enter Password" required>
+
+            <button type="button" onclick="register()">Register</button>
+        </form>
+
+        <form id="loginForm">
+            <label for="loginUsername">Username:</label>
+            <input type="text" id="loginUsername" placeholder="Enter Username" required>
+
+            <label for="loginPassword">Password:</label>
+            <input type="password" id="loginPassword" placeholder="Enter Password" required>
+
+            <button type="button" onclick="login()">Login</button>
+        </form>
+
+        <form id="searchTeacherForm">
+            <label for="teacherName">Teacher Name:</label>
+            <input type="text" id="teacherName" placeholder="Enter Teacher Name" required>
+
+            <button type="button" onclick="searchTeacher()">Search Teacher</button>
+        </form>
+
+        <form id="bookAppointmentForm">
+            <label for="selectedTeacher">Select Teacher:</label>
+            <label for="appointmentDate">Select Date:</label>
+            <input type="date" id="appointmentDate" required>
+
+            <label for="appointmentTime">Select Time:</label>
+            <input type="time" id="appointmentTime" required>
+
+            <button type="button" onclick="bookAppointment()">Book Appointment</button>
+        </form>
+
+        <form id="sendMessageForm">
+            <label for="messageRecipient">Recipient:</label>
+            <label for="messageContent">Message:</label>
+            <textarea id="messageContent" rows="4" required></textarea>
+
+            <button type="button" onclick="sendMessage()">Send Message</button>
+        </form>
+    </div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js";
+        import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = getDatabase();
+
+        function bookAppointment() {
+            const teacherName = document.getElementById("teacherName").value;
+            const appointmentDate = document.getElementById("appointmentDate").value;
+            const appointmentTime = document.getElementById("appointmentTime").value;
+
+            const appointmentsRef = ref(db, 'appointments');
+
+            const newAppointmentRef = push(appointmentsRef);
+            const newAppointmentId = newAppointmentRef.key;
+
+            const newAppointment = {
+                teacherName: teacherName,
+                date: appointmentDate,
+                time: appointmentTime,
+                status: 'pending' 
+            };
+
+            set(newAppointmentRef, newAppointment)
+                .then(() => {
+                    alert(`Appointment booked successfully!`);
+                })
+                .catch((error) => {
+                    console.error("Error booking appointment: ", error);
+                });
+        }
+    </script>
+</body>
+</html>

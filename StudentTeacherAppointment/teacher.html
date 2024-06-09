@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="teacher.css">
+    <title>Teacher Module</title>
+</head>
+<body>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="admin.html">Admin</a>
+        <a href="teacher.html">Teacher</a>
+        <a href="student.html">Student</a>
+    </nav>
+    <div class="container">
+        <h1>Teacher Module</h1>
+        <form id="scheduleAppointmentForm">
+            <label for="date">Select Date:</label>
+            <input type="date" id="date" required>
+
+            <label for="time">Select Time:</label>
+            <input type="time" id="time" required>
+
+            <button type="button" onclick="scheduleAppointment()">Schedule Appointment</button>
+        </form>
+
+        <form id="manageAppointmentForm">
+            <label for="appointmentId">Appointment ID:</label>
+            <input type="text" id="appointmentId" placeholder="Enter Appointment ID" required>
+
+            <button type="button" onclick="approveAppointment()">Approve Appointment</button>
+            <button type="button" onclick="cancelAppointment()">Cancel Appointment</button>
+        </form>
+
+        <div id="messages">
+            <h2>Messages</h2>
+        </div>
+
+        <div id="allAppointments">
+            <h2>All Appointments</h2>
+        </div>
+
+        <button onclick="logout()">Logout</button>
+    </div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js";
+        import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = getDatabase();
+
+        function manageAppointment() {
+            const appointmentId = document.getElementById("appointmentId").value;
+            const approvalStatus = document.getElementById("approvalStatus").value;
+
+            const appointmentsRef = ref(db, 'appointments');
+
+            get(appointmentsRef.child(appointmentId)).then((snapshot) => {
+                if (snapshot.exists()) {
+                    const appointmentData = snapshot.val();
+
+                    appointmentData.status = approvalStatus;
+
+                    set(appointmentsRef.child(appointmentId), appointmentData)
+                        .then(() => {
+                            alert(`Appointment ${approvalStatus === 'approve' ? 'approved' : 'cancelled'} successfully!`);
+                        })
+                        .catch((error) => {
+                            console.error("Error updating appointment: ", error);
+                        });
+                } else {
+                    alert(`No appointment found with ID: ${appointmentId}`);
+                }
+            }).catch((error) => {
+                console.error("Error reading data: ", error);
+            });
+        }
+    </script>
+</body>
+</html>

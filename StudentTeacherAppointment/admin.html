@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="admin.css">
+    <title>Admin Module</title>
+</head>
+<body>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="admin.html">Admin</a>
+        <a href="teacher.html">Teacher</a>
+        <a href="student.html">Student</a>
+    </nav>
+    <div class="container">
+        
+        <h1>Admin Module</h1>
+        <form id="addTeacherForm">
+            <input type="text" id="teacherName" placeholder="Teacher Name" required>
+            <input type="text" id="department" placeholder="Department" required>
+            <input type="text" id="subject" placeholder="Subject" required>
+            <button type="button" onclick="addTeacher()">Add Teacher</button>
+        </form>
+        <form id="updateTeacherForm">
+            <input type="text" id="teacherId" placeholder="Teacher ID" required>
+            <button type="button" onclick="updateTeacher()">Update Teacher</button>
+            <button type="button" onclick="deleteTeacher()">Delete Teacher</button>
+        </form>
+        <form id="approveStudentForm">
+            <input type="text" id="studentId" placeholder="Student ID" required>
+            <button type="button" onclick="approveStudentRegistration()">Approve Registration</button>
+        </form>
+    </div>
+    <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js";
+    import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "YOUR_API_KEY",
+        authDomain: "YOUR_AUTH_DOMAIN",
+        projectId: "YOUR_PROJECT_ID",
+        storageBucket: "YOUR_STORAGE_BUCKET",
+        messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+        appId: "YOUR_APP_ID"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = getDatabase();
+
+    function manageAppointment() {
+        const appointmentId = document.getElementById("appointmentId").value;
+        const approvalStatus = document.getElementById("approvalStatus").value;
+
+        const appointmentsRef = ref(db, 'appointments');
+
+        get(appointmentsRef.child(appointmentId)).then((snapshot) => {
+            if (snapshot.exists()) {
+                const appointmentData = snapshot.val();
+
+                // Update the status based on admin's decision
+                appointmentData.status = approvalStatus;
+
+                set(appointmentsRef.child(appointmentId), appointmentData)
+                    .then(() => {
+                        alert(`Appointment ${approvalStatus === 'approve' ? 'approved' : 'rejected'} successfully!`);
+                    })
+                    .catch((error) => {
+                        console.error("Error updating appointment: ", error);
+                    });
+            } else {
+                alert(`No appointment found with ID: ${appointmentId}`);
+            }
+        }).catch((error) => {
+            console.error("Error reading data: ", error);
+        });
+    }
+</script>
+</body>
+</html>
